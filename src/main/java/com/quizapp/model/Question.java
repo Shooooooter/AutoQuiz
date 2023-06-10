@@ -3,6 +3,7 @@ package com.quizapp.model;
 public class Question {
     private String prompt;
     private String answer;
+    private String clientAnswer;
 
     public Question(String prompt, String answer) {
         this.prompt = prompt;
@@ -25,6 +26,18 @@ public class Question {
         this.answer = answer;
     }
 
+    public String getClientAnswer() {
+        return clientAnswer;
+    }
+
+    public void setClientAnswer(String clientAnswer) {
+        this.clientAnswer = clientAnswer;
+    }
+
+    public boolean checkAnswer(String clientAnswer) {
+        return answer.equalsIgnoreCase(clientAnswer);
+    }
+
     @Override
     public String toString() {
         return "Question{" +
@@ -32,5 +45,4 @@ public class Question {
                 ", answer='" + answer + '\'' +
                 '}';
     }
-
 }

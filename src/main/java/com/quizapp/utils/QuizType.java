@@ -1,4 +1,8 @@
 package com.quizapp.utils;
 
-public class QuizType {
+public enum QuizType {
+    MULTIPLE_CHOICE,
+    TRUE_FALSE,
+    FILL_IN_THE_BLANK,
+    ESSAY
 }
