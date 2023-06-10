@@ -37,14 +37,15 @@ public class QuizGeneratorService {
 
             // read output from Python script
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
+            String questionsText = reader.readLine();
+            String answersText = reader.readLine();
+            String[] questions = questionsText.split("\n");
+            String[] answers = answersText.split("\n");
             List<Question> questionList = new ArrayList<>();
 
-            while ((line = reader.readLine()) != null) {
-                String[] questionData = line.split(",");
-                Question question = new Question(questionData[0], questionData[1]);
-                question.setPrompt(questionData[2]);
-                question.setAnswer(questionData[3]);
+            for (int i = 0; i < questions.length; i++) {
+                Question question = new Question(String.valueOf(i + 1), answers[i]);
+                question.setPrompt(questions[i]);
                 questionList.add(question);
             }
 
@@ -55,6 +56,7 @@ public class QuizGeneratorService {
                 BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
                 StringBuilder errorMessage = new StringBuilder();
                 errorMessage.append("Error running command: ").append(command).append("\n");
+                String line;
                 while ((line = errorReader.readLine()) != null) {
                     errorMessage.append(line).append("\n");
                 }

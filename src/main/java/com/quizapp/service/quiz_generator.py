@@ -31,7 +31,7 @@ class QuizGeneratorService:
 
     def generate_quiz(self, topic, difficulty, num_questions):
         # Define the prompt to generate the quiz questions
-        prompt = f"Please generate a {difficulty} {num_questions}-question quiz on {topic}."
+        prompt = f"Please generate a {difficulty} difficulty {num_questions}-question quiz on {topic}."
 
         try:
             # Generate the quiz questions using GPT-3
