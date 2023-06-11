@@ -1,78 +1,64 @@
 package com.quizapp.service;
 
-import com.quizapp.model.Question;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.quizapp.model.Quiz;
-import com.quizapp.utils.QuizDifficulty;
-import com.quizapp.utils.QuizType;
-import com.quizapp.utils.Topic;
+import com.quizapp.model.Question;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class QuizLoader {
-    private static final String CSV_FILE_DIRECTORY = "src/Res/";
-    private static final String CSV_FILE_EXTENSION = ".csv";
+    private static final String JSON_FILE_DIRECTORY = "src/Res/"; // Replace with the actual directory path where your JSON files are located
+    private static final String JSON_FILE_EXTENSION = ".json";
 
     public List<Quiz> loadQuizzes() {
         List<Quiz> quizzes = new ArrayList<>();
 
-        // Get all the CSV files in the specified directory
-        File csvDirectory = new File(CSV_FILE_DIRECTORY);
-        File[] csvFiles = csvDirectory.listFiles((dir, name) -> name.endsWith(CSV_FILE_EXTENSION));
-
-        // Check if csvFiles is not null before iterating over it
-        if (csvFiles != null) {
-            // Iterate over each CSV file and load the quiz
-            for (File csvFile : csvFiles) {
-                Quiz quiz = loadQuizFromCSV(csvFile);
-                quizzes.add(quiz);
+        // Load quizzes from JSON files
+        File quizzesDir = new File(JSON_FILE_DIRECTORY);
+        if (quizzesDir.isDirectory()) {
+            File[] quizFiles = quizzesDir.listFiles();
+            if (quizFiles != null) {
+                for (File quizFile : quizFiles) {
+                    if (quizFile.getName().endsWith(JSON_FILE_EXTENSION)) {
+                        List<Quiz> loadedQuizzes = loadQuizzesFromJSON(quizFile);
+                        quizzes.addAll(loadedQuizzes);
+                    }
+                }
             }
         }
 
         return quizzes;
     }
 
-    public static Quiz loadQuizFromCSV(File csvFile) {
-        List<Question> questions = new ArrayList<>();
+    private static List<Quiz> loadQuizzesFromJSON(File jsonFile) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(jsonFile))) {
+            Gson gson = new Gson();
+            Type type = new TypeToken<Map<String, List<Map<String, String>>>>() {}.getType();
+            Map<String, List<Map<String, String>>> jsonData = gson.fromJson(reader, type);
+            List<Map<String, String>> quizList = jsonData.get("quiz");
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
-            String line;
-            boolean isFirstLine = true;
-            while ((line = reader.readLine()) != null) {
-                if (isFirstLine) {
-                    // Skip the header line
-                    isFirstLine = false;
-                    continue;
-                }
+            List<Quiz> quizzes = new ArrayList<>();
+            for (Map<String, String> quizMap : quizList) {
+                String promptAnswer = quizMap.get("answer");
+                String[] parts = promptAnswer.split("\nAnswer: ");
+                String prompt = parts[0];
+                String answer = parts[1];
 
-                String[] data = line.split(",");
-                if (data.length == 2) {
-                    String prompt = data[0];
-                    String answer = data[1];
-                    Question question = new Question(prompt, answer);
-                    questions.add(question);
-                }
+                Question question = new Question(prompt, answer);
+                Quiz quiz = new Quiz(0, null, null, null, null); // Replace the arguments with appropriate values
+                quiz.addQuestion(question);
+                quizzes.add(quiz);
             }
+
+            return quizzes;
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException("Error loading quiz from CSV file: " + csvFile.getAbsolutePath());
+            throw new RuntimeException("Error loading quizzes from JSON file: " + jsonFile.getAbsolutePath());
         }
-
-        // Extract quiz information from the CSV file name
-        String fileName = csvFile.getName();
-        String[] fileNameParts = fileName.split("_");
-        if (fileNameParts.length < 4) {
-            throw new RuntimeException("Invalid CSV file name: " + fileName);
-        }
-
-        QuizType quizType = QuizType.valueOf(fileNameParts[1]);
-        QuizDifficulty quizDifficulty = QuizDifficulty.valueOf(fileNameParts[2]);
-
-        // Create the Quiz object
-        return new Quiz(0, quizType, quizDifficulty, Topic.DEFAULT_TOPIC, questions);
     }
 }

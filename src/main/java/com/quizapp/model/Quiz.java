@@ -5,6 +5,7 @@ import com.quizapp.utils.QuizType;
 import com.quizapp.utils.Topic;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class Quiz {
     private int id;
@@ -12,6 +13,7 @@ public class Quiz {
     private QuizDifficulty difficulty;
     private Topic topic;
     private List<Question> questions;
+    private int correctAnswers;
 
     public Quiz(int id, QuizType type, QuizDifficulty difficulty, Topic topic, List<Question> questions) {
         this.id = id;
@@ -19,6 +21,13 @@ public class Quiz {
         this.difficulty = difficulty;
         this.topic = topic;
         this.questions = questions;
+        this.correctAnswers = 0; // Initialize correctAnswers to 0
+    }
+
+    public Quiz(int quizId, List<Question> questions) {
+        this.id = quizId;
+        this.questions = questions;
+        this.correctAnswers = 0; // Initialize correctAnswers to 0
     }
 
     public int getId() {
@@ -61,6 +70,22 @@ public class Quiz {
         this.questions = questions;
     }
 
+    public int getCorrectAnswers() {
+        return correctAnswers;
+    }
+
+    public void setCorrectAnswers(int correctAnswers) {
+        this.correctAnswers = correctAnswers;
+    }
+
+    public void addQuestion(Question question) {
+        if (questions == null) {
+            questions = new ArrayList<>(); // Initialize the questions list if it's null
+        }
+        questions.add(question);
+    }
+
+
     @Override
     public String toString() {
         return "Quiz{" +
@@ -71,5 +96,4 @@ public class Quiz {
                 ", questions=" + questions +
                 '}';
     }
-
 }

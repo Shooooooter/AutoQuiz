@@ -1,7 +1,7 @@
-package com.quizapp.utils;
+    package com.quizapp.utils;
 
-public enum QuizDifficulty {
-    EASY,
-    MEDIUM,
-    HARD
-}
+    public enum QuizDifficulty {
+        EASY,
+        MEDIUM,
+        HARD
+    }

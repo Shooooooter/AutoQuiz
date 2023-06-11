@@ -17,9 +17,10 @@ public class QuizTakingService {
     public void takeQuiz(Quiz quiz) {
         int totalQuestions = quiz.getQuestions().size();
 
-        // Ask client how many questions they want to answer
+        // Ask the client how many questions they want to answer
         System.out.println("There are " + totalQuestions + " questions in this quiz. How many questions would you like to answer?");
         int numQuestions = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
 
         if (numQuestions <= 0) {
             System.out.println("Invalid number of questions. Please try again.");
@@ -41,9 +42,9 @@ public class QuizTakingService {
         for (Question question : selectedQuestions) {
             System.out.println(question.getPrompt());
 
-            String clientAnswer = scanner.nextLine().trim();
+            String clientAnswer = scanner.nextLine().trim().toLowerCase(); // Convert answer to lowercase
 
-            if (question.checkAnswer(clientAnswer)) {
+            if (question.isCorrectAnswer(clientAnswer.toLowerCase())) { // Compare case-insensitive answers
                 System.out.println("Correct!");
                 numCorrectAnswers++;
             } else {
@@ -59,7 +60,7 @@ public class QuizTakingService {
         } else {
             System.out.println("Here are the correct answers for the questions you answered incorrectly:");
             for (Question question : selectedQuestions) {
-                if (!question.checkAnswer(question.getClientAnswer())) {
+                if (!question.isCorrectAnswer(question.getClientAnswer())) {
                     System.out.println(question.getPrompt() + " Correct answer: " + question.getAnswer());
                 }
             }
