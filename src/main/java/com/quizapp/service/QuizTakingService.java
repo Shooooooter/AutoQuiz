@@ -2,16 +2,13 @@ package com.quizapp.service;
 
 import com.quizapp.model.Question;
 import com.quizapp.model.Quiz;
-import com.quizapp.utils.QuizDifficulty;
-import com.quizapp.utils.QuizType;
-import com.quizapp.utils.Topic;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class QuizTakingService {
-    private Scanner scanner;
+    private final Scanner scanner;
 
     public QuizTakingService() {
         this.scanner = new Scanner(System.in);
@@ -35,21 +32,16 @@ public class QuizTakingService {
         }
 
         // Randomly select the specified number of questions from the quiz
-        List<Question> selectedQuestions = new ArrayList<>();
-        List<Question> allQuestions = quiz.getQuestions();
-
-        for (int i = 0; i < numQuestions; i++) {
-            int randomIndex = (int) (Math.random() * allQuestions.size());
-            selectedQuestions.add(allQuestions.get(randomIndex));
-            allQuestions.remove(randomIndex);
-        }
+        List<Question> selectedQuestions = new ArrayList<>(quiz.getQuestions());
+        java.util.Collections.shuffle(selectedQuestions);
+        selectedQuestions = selectedQuestions.subList(0, numQuestions);
 
         // Display each question and prompt the client for an answer
         int numCorrectAnswers = 0;
         for (Question question : selectedQuestions) {
             System.out.println(question.getPrompt());
 
-            String clientAnswer = scanner.nextLine();
+            String clientAnswer = scanner.nextLine().trim();
 
             if (question.checkAnswer(clientAnswer)) {
                 System.out.println("Correct!");

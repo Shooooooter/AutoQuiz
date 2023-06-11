@@ -3,21 +3,24 @@ package com.quizapp.controller;
 import com.quizapp.model.Quiz;
 import com.quizapp.service.QuizTakingService;
 import com.quizapp.service.QuizGeneratorService;
+import com.quizapp.service.QuizLoader;
 import com.quizapp.utils.QuizDifficulty;
 import com.quizapp.utils.QuizType;
 import com.quizapp.utils.Topic;
 
-import java.io.IOException;
 import java.util.Scanner;
+import java.util.List;
 
 public class QuizController {
-    private QuizGeneratorService generatorService;
-    private QuizTakingService takingService;
-    private Scanner scanner;
+    private final QuizGeneratorService generatorService;
+    private final QuizTakingService takingService;
+    private final QuizLoader quizLoader;
+    private final Scanner scanner;
 
     public QuizController() {
         generatorService = new QuizGeneratorService();
         takingService = new QuizTakingService();
+        quizLoader = new QuizLoader(); // Instantiate the QuizLoader object
         scanner = new Scanner(System.in);
     }
 
@@ -32,27 +35,33 @@ public class QuizController {
         QuizDifficulty quizDifficulty = selectQuizDifficulty();
         int numQuestions = selectNumberOfQuestions();
 
-        try {
-            // Generate the quiz
-            Quiz quiz = generatorService.generateQuiz(numQuestions, quizType, topic, quizDifficulty);
+        // Generate the quizzes
+        List<Quiz> quizzes = generatorService.generateQuizzes(numQuestions, quizType, topic, quizDifficulty);
 
-            // Start taking the quiz
+        // Load additional quizzes from CSV files
+        List<Quiz> loadedQuizzes = quizLoader.loadQuizzes();
+        quizzes.addAll(loadedQuizzes);
+
+        // Iterate over the quizzes and start taking each one
+        for (Quiz quiz : quizzes) {
             takingService.takeQuiz(quiz);
-        } catch (IOException | InterruptedException e) {
-            System.out.println("Error generating or taking the quiz: " + e.getMessage());
         }
     }
+
 
     private QuizType selectQuizType() {
         System.out.println("Select quiz type:");
         System.out.println("1. Multiple Choice");
         System.out.println("2. True/False");
+        System.out.println("3. Fill In The Blank");
         int choice = scanner.nextInt();
         if (choice == 1) {
             return QuizType.MULTIPLE_CHOICE;
         } else if (choice == 2) {
             return QuizType.TRUE_FALSE;
-        } else {
+        }else if (choice == 3) {
+            return QuizType.FILL_IN_THE_BLANK;
+        }else {
             System.out.println("Invalid choice. Defaulting to Multiple Choice.");
             return QuizType.MULTIPLE_CHOICE;
         }
@@ -86,15 +95,19 @@ public class QuizController {
         System.out.println("3. Hard");
         int choice = scanner.nextInt();
         switch (choice) {
-            case 1:
+            case 1 -> {
                 return QuizDifficulty.EASY;
-            case 2:
+            }
+            case 2 -> {
                 return QuizDifficulty.MEDIUM;
-            case 3:
+            }
+            case 3 -> {
                 return QuizDifficulty.HARD;
-            default:
+            }
+            default -> {
                 System.out.println("Invalid choice. Defaulting to Easy.");
                 return QuizDifficulty.EASY;
+            }
         }
     }
 

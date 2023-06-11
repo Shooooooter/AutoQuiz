@@ -1,6 +1,7 @@
 package com.quizapp.utils;
 
 public class Topic {
+    public static final Topic DEFAULT_TOPIC = new Topic("AI Powered Quiz");
     private String name;
 
     public Topic(String name) {
