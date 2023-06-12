@@ -11,7 +11,7 @@ import com.quizapp.utils.Topic;
 import java.util.List;
 
 public class QuizController {
-    private QuizAppGUI quizAppGUI;
+    private final QuizAppGUI quizAppGUI;
 
     public QuizController(QuizAppGUI quizAppGUI) {
         this.quizAppGUI = quizAppGUI;
@@ -47,10 +47,7 @@ public class QuizController {
         }
 
         // Display the quiz results to the user using the GUI
-        quizAppGUI.displayQuizResults(correctAnswers, totalQuestions);
+        quizAppGUI.displayQuizResults(quiz, correctAnswers, totalQuestions);
         return quiz;
-    }
-    public void startQuiz(Quiz selectedQuiz){
-
     }
 }

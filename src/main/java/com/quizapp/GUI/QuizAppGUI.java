@@ -1,12 +1,7 @@
 package com.quizapp.GUI;
 
-import com.quizapp.service.QuizLoader;
 import com.quizapp.model.Question;
 import com.quizapp.model.Quiz;
-import com.quizapp.controller.QuizController;
-import com.quizapp.utils.QuizDifficulty;
-import com.quizapp.utils.QuizType;
-import com.quizapp.utils.Topic;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -17,66 +12,46 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.scene.control.Alert;;
+import javafx.scene.Node;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class QuizAppGUI extends Application {
-    private QuizController quizController;
-    private ListView<Quiz> quizListView;
-
-    private Stage primaryStage;
     private VBox quizLayout;
-    private Label questionLabel;
     private ToggleGroup optionsToggleGroup;
 
     @Override
     public void start(Stage primaryStage) {
-        // Initialize the QuizController
-        quizController = new QuizController(this);
-
-        this.primaryStage = primaryStage;
-
-        // Create GUI components
+        // Create the UI components
+        ListView<Quiz> quizListView = new ListView<>();
         Label numQuestionsLabel = new Label("Number of Questions:");
         ComboBox<Integer> numQuestionsComboBox = new ComboBox<>();
-        numQuestionsComboBox.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-
         Label quizTypeLabel = new Label("Quiz Type:");
-        ComboBox<QuizType> quizTypeComboBox = new ComboBox<>();
-        quizTypeComboBox.getItems().addAll(QuizType.values());
-
+        ComboBox<String> quizTypeComboBox = new ComboBox<>();
         Label topicLabel = new Label("Topic:");
         TextField topicTextField = new TextField();
-
         Label difficultyLabel = new Label("Difficulty:");
-        ComboBox<QuizDifficulty> difficultyComboBox = new ComboBox<>();
-        difficultyComboBox.getItems().addAll(QuizDifficulty.values());
+        ComboBox<String> difficultyComboBox = new ComboBox<>();
+        Button generateButton = new Button("Generate Quiz");
 
-        Button generateButton = new Button("Generate");
-        generateButton.setOnAction(event -> {
-            int numQuestions = numQuestionsComboBox.getValue();
-            QuizType quizType = quizTypeComboBox.getValue();
-            Topic topic = new Topic(topicTextField.getText());
-            QuizDifficulty difficulty = difficultyComboBox.getValue();
-            Quiz generatedQuiz = quizController.generateQuiz(numQuestions, quizType, topic, difficulty);
-            displayQuizzes(List.of(generatedQuiz)); // Display the newly generated quiz in the sidebar
-        });
+        // Configure the UI components
+        quizListView.setPrefWidth(200);
+        quizListView.setPrefHeight(400);
+        numQuestionsComboBox.getItems().addAll(1, 2, 3,4,5,6,7,8,9,10);
+        numQuestionsComboBox.setValue(10);
+        quizTypeComboBox.getItems().addAll("Multiple Choice", "True/False");
+        quizTypeComboBox.setValue("Multiple Choice");
+        difficultyComboBox.getItems().addAll("Easy", "Medium", "Hard");
+        difficultyComboBox.setValue("Medium");
 
-        // Create the sidebar for displaying existing quizzes
-        quizListView = new ListView<>();
-
-        // Load quizzes from JSON files and display buttons on the sidebar
-        QuizLoader quizLoader = new QuizLoader();
-        List<Quiz> quizzes = quizLoader.loadQuizzes();
-        displayQuizzes(quizzes);
-
-        // Create layout and add components
-        VBox sidebarLayout = new VBox(10, quizListView);
+        // Create the layout
+        VBox sidebarLayout = new VBox(10);
         sidebarLayout.setPadding(new Insets(10));
-        sidebarLayout.setAlignment(Pos.TOP_LEFT);
+        sidebarLayout.getChildren().add(new Label("Quizzes"));
+        sidebarLayout.getChildren().add(quizListView);
 
         GridPane inputGridPane = new GridPane();
         inputGridPane.setPadding(new Insets(10));
@@ -112,138 +87,138 @@ public class QuizAppGUI extends Application {
             if (event.getClickCount() == 2) {
                 Quiz selectedQuiz = quizListView.getSelectionModel().getSelectedItem();
                 if (selectedQuiz != null) {
-                    openQuizWindow(selectedQuiz);
+                    startQuiz(selectedQuiz);
                 }
+            }
+        });
+
+        // Add event handler for generateButton
+        generateButton.setOnAction(event -> {
+            int numQuestions = numQuestionsComboBox.getValue();
+            String quizType = quizTypeComboBox.getValue();
+            String topic = topicTextField.getText();
+            String difficulty = difficultyComboBox.getValue();
+
+            // Generate the quiz
+            Quiz quiz = generateQuiz(numQuestions, quizType, topic, difficulty);
+            if (quiz != null) {
+                // Clear previous quiz layout
+                quizLayout.getChildren().clear();
+                quizListView.getSelectionModel().clearSelection();
+
+                // Add the quiz to the list
+                quizListView.getItems().add(quiz);
             }
         });
     }
 
-    // Method to display quizzes in the sidebar
-    private void displayQuizzes(List<Quiz> quizzes) {
-        quizListView.getItems().clear();
-        quizListView.getItems().addAll(quizzes);
-        quizListView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                Quiz selectedQuiz = quizListView.getSelectionModel().getSelectedItem();
-                if (selectedQuiz != null) {
-                    openQuizWindow(selectedQuiz);
+    private void startQuiz(Quiz quiz) {
+        int totalQuestions = quiz.getQuestions().size();
+        ObjectProperty<Integer> questionIndex = new SimpleObjectProperty<>(0);
+
+        displayQuestion(quiz.getQuestions().get(questionIndex.get()));
+
+        Button nextButton = new Button("Next");
+
+        nextButton.setOnAction(event -> {
+            RadioButton selectedOption = getSelectedOption(questionIndex.get());
+            if (selectedOption != null) {
+                String selectedAnswer = (String) selectedOption.getUserData();
+                Question currentQuestion = quiz.getQuestions().get(questionIndex.get());
+                if (currentQuestion.isCorrectAnswer(selectedAnswer)) {
+                    System.out.println("Correct!");
+                } else {
+                    System.out.println("Incorrect!");
+                }
+
+                int currentIndex = questionIndex.get();
+                questionIndex.set(currentIndex + 1);
+
+                if (currentIndex < totalQuestions) {
+                    displayQuestion(quiz.getQuestions().get(currentIndex));
+                } else {
+                    displayQuizResults(quiz);
                 }
             }
         });
+
+        quizLayout.getChildren().add(nextButton);
     }
 
-
-
-    private void openQuizWindow(Quiz quiz) {
-        Stage quizStage = new Stage();
-        quizStage.setTitle("Quiz: " + quiz.getId());
-
-        GridPane quizLayout = new GridPane();
-        quizLayout.setPadding(new Insets(10));
-        quizLayout.setHgap(10);
-        quizLayout.setVgap(10);
-
-        // Display each question with radio buttons
-        int rowIndex = 0;
-        for (Question question : quiz.getQuestions()) {
-            Label questionLabel = new Label(question.getPrompt());
-
-            ToggleGroup optionsToggleGroup = new ToggleGroup();
-
-            List<RadioButton> optionRadioButtons = getOptionRadioButtons(question.getOptions(), optionsToggleGroup);
-            quizLayout.addRow(rowIndex++, questionLabel);
-            for (int i = 0; i < optionRadioButtons.size(); i++) {
-                quizLayout.addRow(rowIndex++, optionRadioButtons.get(i));
+    private RadioButton getSelectedOption(int questionIndex) {
+        List<Node> radioButtons = quizLayout.getChildren().filtered(node -> node instanceof RadioButton);
+        for (Node radioButton : radioButtons) {
+            RadioButton optionRadioButton = (RadioButton) radioButton;
+            if (optionRadioButton.isSelected() && optionRadioButton.getId().startsWith("option-" + questionIndex)) {
+                return optionRadioButton;
             }
         }
-
-        Button submitButton = new Button("Submit");
-        submitButton.setOnAction(event -> {
-            int correctAnswers = 0;
-            int totalQuestions = quiz.getQuestions().size();
-
-            // Iterate through the questions and check the selected answer
-            for (Question question : quiz.getQuestions()) {
-                RadioButton selectedOption = (RadioButton) optionsToggleGroup.getSelectedToggle();
-                if (selectedOption != null && selectedOption.getUserData().equals(question.getAnswer())) {
-                    correctAnswers++;
-                }
-            }
-
-            // Display the quiz result
-            displayQuizResults(correctAnswers, totalQuestions);
-            quizStage.close();
-        });
-
-        quizLayout.add(submitButton, 0, rowIndex);
-
-        Scene scene = new Scene(quizLayout);
-        quizStage.setScene(scene);
-        quizStage.show();
+        return null;
     }
 
-    private List<RadioButton> getOptionRadioButtons(String[] options, ToggleGroup toggleGroup) {
-        return Arrays.stream(options)
-                .map(option -> {
-                    RadioButton radioButton = new RadioButton(option);
-                    radioButton.setUserData(option);
-                    radioButton.setToggleGroup(toggleGroup);
-                    return radioButton;
-                })
-                .collect(Collectors.toList());
-    }
-    // Method to display a question and its options
-    public void displayQuestion(Question question) {
-        questionLabel = new Label(question.getPrompt());
-        quizLayout.getChildren().clear();
-        quizLayout.getChildren().add(questionLabel);
+    public void displayQuizResults(Quiz quiz) {
+        int totalQuestions = quiz.getQuestions().size();
+        int correctAnswers = calculateCorrectAnswers(quiz);
 
-        optionsToggleGroup = new ToggleGroup();
-
-        List<RadioButton> optionRadioButtons = getOptionRadioButtons(question.getOptions());
-        quizLayout.getChildren().addAll(optionRadioButtons);
+        displayQuizResults(quiz, correctAnswers, totalQuestions);
     }
 
-    private List<RadioButton> getOptionRadioButtons(String[] options) {
-        return Arrays.stream(options)
-                .map(this::createOptionRadioButton)
-                .collect(Collectors.toList());
-    }
-
-
-    private RadioButton createOptionRadioButton(String option) {
-        RadioButton radioButton = new RadioButton(option);
-        radioButton.setUserData(option);
-        radioButton.setToggleGroup(optionsToggleGroup);
-        return radioButton;
-    }
-
-    // Method to update the displayed question and options
-    public void updateQuestion(Question question) {
-        questionLabel.setText(question.getPrompt());
-
-        List<RadioButton> optionRadioButtons = getOptionRadioButtons(question.getOptions());
-        quizLayout.getChildren().removeAll(optionRadioButtons);
-        quizLayout.getChildren().addAll(optionRadioButtons);
-    }
-
-    // Method to display the quiz result
-    // Method to display the quiz result
-    // Method to display the quiz result
-    public void displayQuizResult(Quiz quiz, int correctAnswers) {
+    public void displayQuizResults(Quiz quiz, int correctAnswers, int totalQuestions) {
         quizLayout.getChildren().clear();
         Label resultLabel = new Label("Quiz Result");
         Label quizNameLabel = new Label("Quiz: " + quiz.getId());
-        Label correctAnswersLabel = new Label("Correct Answers: " + correctAnswers);
+        Label correctAnswersLabel = new Label("Correct Answers: " + correctAnswers + "/" + totalQuestions);
 
         quizLayout.getChildren().addAll(resultLabel, quizNameLabel, correctAnswersLabel);
     }
 
 
-    public static void main(String[] args) {
-        launch(args);
+    private int calculateCorrectAnswers(Quiz quiz) {
+        int correctAnswers = 0;
+        for (Question question : quiz.getQuestions()) {
+            if (question.isCorrectAnswer(question.getClientAnswer())) {
+                correctAnswers++;
+            }
+        }
+        return correctAnswers;
     }
 
-    public void displayQuizResults(int correctAnswer, int totalQuestions) {
+
+
+    public void displayQuestion(Question question) {
+        Label questionLabel = new Label(question.getPrompt());
+        quizLayout.getChildren().clear();
+        quizLayout.getChildren().add(questionLabel);
+
+        optionsToggleGroup = new ToggleGroup();
+
+        List<RadioButton> optionRadioButtons = getOptionRadioButtons(optionsToggleGroup, 0, question.getOptions());
+        quizLayout.getChildren().addAll(optionRadioButtons);
+    }
+
+    private List<RadioButton> getOptionRadioButtons(ToggleGroup toggleGroup, int questionIndex, String[] options) {
+        List<RadioButton> radioButtons = new ArrayList<>();
+
+        if (options != null) {
+            for (int i = 0; i < options.length; i++) {
+                RadioButton radioButton = new RadioButton(options[i]);
+                radioButton.setToggleGroup(toggleGroup);
+                radioButton.setUserData(options[i]);
+                radioButton.setId("option-" + questionIndex + "-" + (char) (i + 65)); // Set an ID for each radio button
+                radioButtons.add(radioButton);
+            }
+        }
+
+        return radioButtons;
+    }
+
+    private Quiz generateQuiz(int numQuestions, String quizType, String topic, String difficulty) {
+        // Generate the quiz based on the provided parameters
+        // Replace this with your own logic to generate quizzes
+        return null;
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }
