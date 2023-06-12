@@ -2,8 +2,8 @@ package com.quizapp.service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.quizapp.model.Quiz;
 import com.quizapp.model.Question;
+import com.quizapp.model.Quiz;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -38,19 +38,16 @@ public class QuizLoader {
     private static List<Quiz> loadQuizzesFromJSON(File jsonFile) {
         try (BufferedReader reader = new BufferedReader(new FileReader(jsonFile))) {
             Gson gson = new Gson();
-            Type type = new TypeToken<Map<String, List<Map<String, String>>>>() {}.getType();
-            Map<String, List<Map<String, String>>> jsonData = gson.fromJson(reader, type);
-            List<Map<String, String>> quizList = jsonData.get("quiz");
+            Type type = new TypeToken<List<Map<String, String>>>() {}.getType();
+            List<Map<String, String>> quizList = gson.fromJson(reader, type);
 
             List<Quiz> quizzes = new ArrayList<>();
             for (Map<String, String> quizMap : quizList) {
-                String promptAnswer = quizMap.get("answer");
-                String[] parts = promptAnswer.split("\nAnswer: ");
-                String prompt = parts[0];
-                String answer = parts[1];
+                String prompt = quizMap.get("prompt");
+                String answer = quizMap.get("answer");
 
                 Question question = new Question(prompt, answer);
-                Quiz quiz = new Quiz(0, null, null, null, null); // Replace the arguments with appropriate values
+                Quiz quiz = new Quiz(questions);
                 quiz.addQuestion(question);
                 quizzes.add(quiz);
             }

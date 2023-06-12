@@ -30,6 +30,14 @@ public class Quiz {
         this.correctAnswers = 0; // Initialize correctAnswers to 0
     }
 
+    public Quiz(List<Question> questions){
+
+    }
+
+    public Quiz() {
+
+    }
+
     public int getId() {
         return id;
     }

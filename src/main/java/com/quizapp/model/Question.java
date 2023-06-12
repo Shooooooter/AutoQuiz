@@ -1,5 +1,6 @@
 package com.quizapp.model;
 
+import com.quizapp.utils.QuizType;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -8,6 +9,7 @@ public class Question {
     private String[] options;
     private String answer;
     private String clientAnswer;
+    private  QuizType type;
 
     public Question(String prompt, String[] options, String answer) {
         this.prompt = prompt;
@@ -22,10 +24,6 @@ public class Question {
 
     public String getPrompt() {
         return prompt;
-    }
-
-    public String[] getOptions() {
-        return options;
     }
 
     public String getAnswer() {
@@ -54,6 +52,22 @@ public class Question {
                 ", options=" + Arrays.toString(options) +
                 ", answer='" + answer + '\'' +
                 '}';
+    }
+
+    public String getId() {
+        return this.getId();
+    }
+    public String getQuestionText() {
+        return prompt;
+    }
+
+
+    public QuizType getType() {
+        return type;
+    }
+
+    public String[] getOptions() {
+        return options;
     }
 
 }
