@@ -3,7 +3,6 @@ package com.quizapp.service;
 import com.quizapp.model.Quiz;
 import com.quizapp.utils.QuizDifficulty;
 import com.quizapp.utils.QuizType;
-import com.quizapp.utils.Topic;
 
 import com.google.gson.Gson;
 
@@ -18,14 +17,14 @@ public class QuizGeneratorService {
     private static final String PYTHON_INTERPRETER_PATH = "F:\\Java1\\Management\\AutoQuiz\\venv\\Scripts\\python.exe"; // Replace with the actual path to your Python interpreter
     private static final String PYTHON_SCRIPT_PATH = "F:\\Java1\\Management\\AutoQuiz\\src\\main\\java\\com\\quizapp\\GPTcom\\__main__.py"; // Replace with the actual path to your Python script
 
-    public static Quiz generateQuiz(int numQuestions, QuizType quizType, Topic topic, QuizDifficulty quizDifficulty) {
+    public static Quiz generateQuiz(int numQuestions, QuizType quizType, String topic, QuizDifficulty quizDifficulty) {
         Quiz quiz = null;
 
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(PYTHON_INTERPRETER_PATH, PYTHON_SCRIPT_PATH,
                     "--num_questions", String.valueOf(numQuestions),
                     "--quiz_type", quizType.name(),
-                    "--topic", topic.getName(),
+                    "--topic", topic,
                     "--difficulty", quizDifficulty.name());
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();

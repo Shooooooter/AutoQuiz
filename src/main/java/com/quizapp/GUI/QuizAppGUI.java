@@ -3,24 +3,18 @@ package com.quizapp.GUI;
 import com.quizapp.model.Question;
 import com.quizapp.model.Quiz;
 import com.quizapp.service.QuizGeneratorService;
+import com.quizapp.service.QuizLoader;
 import com.quizapp.utils.QuizDifficulty;
 import com.quizapp.utils.QuizType;
-import com.quizapp.utils.Topic;
-import com.quizapp.service.QuizLoader;
 import javafx.application.Application;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import java.util.Arrays;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class QuizAppGUI extends Application {
     private VBox quizLayout;
@@ -54,35 +48,30 @@ public class QuizAppGUI extends Application {
         difficultyComboBox.setValue(QuizDifficulty.MEDIUM);
 
         // Create the layout
-        VBox sidebarLayout = new VBox(10);
-        sidebarLayout.setPadding(new Insets(10));
-        sidebarLayout.getChildren().add(new Label("Quizzes"));
-        sidebarLayout.getChildren().add(quizListView);
+        TabPane tabPane = new TabPane();
 
-        GridPane inputGridPane = new GridPane();
-        inputGridPane.setPadding(new Insets(10));
-        inputGridPane.setHgap(10);
-        inputGridPane.setVgap(10);
+        // Create the "Take Quiz" tab
+        Tab takeQuizTab = new Tab("Take Quiz");
+        VBox takeQuizLayout = new VBox(10);
+        takeQuizLayout.setPadding(new Insets(10));
+        takeQuizLayout.getChildren().add(quizListView);
+        takeQuizTab.setContent(takeQuizLayout);
+        tabPane.getTabs().add(takeQuizTab);
 
-        inputGridPane.add(numQuestionsLabel, 0, 0);
-        inputGridPane.add(numQuestionsComboBox, 1, 0);
-        inputGridPane.add(quizTypeLabel, 0, 1);
-        inputGridPane.add(quizTypeComboBox, 1, 1);
-        inputGridPane.add(topicLabel, 0, 2);
-        inputGridPane.add(topicTextField, 1, 2);
-        inputGridPane.add(difficultyLabel, 0, 3);
-        inputGridPane.add(difficultyComboBox, 1, 3);
-        inputGridPane.add(generateButton, 0, 4, 2, 1);
+        // Create the "Make Quiz" tab
+        Tab makeQuizTab = new Tab("Make Quiz");
+        VBox makeQuizLayout = new VBox(10);
+        makeQuizLayout.setPadding(new Insets(10));
+        makeQuizLayout.getChildren().addAll(numQuestionsLabel, numQuestionsComboBox, quizTypeLabel,
+                quizTypeComboBox, topicLabel, topicTextField, difficultyLabel, difficultyComboBox, generateButton);
+        makeQuizTab.setContent(makeQuizLayout);
+        tabPane.getTabs().add(makeQuizTab);
 
-        quizLayout = new VBox(10);
-        quizLayout.setPadding(new Insets(10));
-        quizLayout.getChildren().add(inputGridPane);
-
-        HBox mainLayout = new HBox(10);
-        mainLayout.getChildren().addAll(sidebarLayout, quizLayout);
+        // Set the selected tab to "Take Quiz" by default
+        tabPane.getSelectionModel().select(takeQuizTab);
 
         // Create the scene and set it on the stage
-        Scene scene = new Scene(mainLayout, 600, 400);
+        Scene scene = new Scene(tabPane, 600, 400);
         primaryStage.setTitle("Quiz App");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -91,13 +80,11 @@ public class QuizAppGUI extends Application {
         generateButton.setOnAction(event -> {
             int numQuestions = numQuestionsComboBox.getValue();
             QuizType quizType = quizTypeComboBox.getValue();
-            String topicName = topicTextField.getText();
-            Topic topic = new Topic(topicName); // Convert the String to a Topic object
+            String topic = topicTextField.getText(); // Convert the String to a Topic object
             QuizDifficulty difficulty = difficultyComboBox.getValue();
 
             // Generate the quiz based on the selected options
-            QuizGeneratorService quizGenerator = new QuizGeneratorService();
-            questions = quizGenerator.generateQuiz(numQuestions, quizType, topic, difficulty);
+            questions = QuizGeneratorService.generateQuiz(numQuestions, quizType, topic, difficulty).getQuestions();
 
             // Display the generated quiz
             startQuiz(questions);
@@ -117,7 +104,7 @@ public class QuizAppGUI extends Application {
 
         for (Question question : questions) {
             VBox questionLayout = new VBox(10);
-            Label questionLabel = new Label(question.getQuestionText());
+            Label questionLabel = new Label(question.getPrompt());
             ToggleGroup answerGroup = new ToggleGroup();
 
             if (question.getType() == QuizType.MULTIPLE_CHOICE) {
@@ -127,8 +114,7 @@ public class QuizAppGUI extends Application {
                             radioButton.setToggleGroup(answerGroup);
                             return radioButton;
                         })
-
-                        .collect(Collectors.toList());
+                        .toList();
                 questionLayout.getChildren().add(questionLabel);
                 questionLayout.getChildren().addAll(answerRadioButtons);
             } else if (question.getType() == QuizType.TRUE_FALSE) {

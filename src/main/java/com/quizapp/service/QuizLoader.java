@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.quizapp.model.Question;
 import com.quizapp.model.Quiz;
+import com.quizapp.utils.QuizDifficulty;
+import com.quizapp.utils.QuizType;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -25,8 +27,8 @@ public class QuizLoader {
             if (quizFiles != null) {
                 for (File quizFile : quizFiles) {
                     if (quizFile.getName().endsWith(JSON_FILE_EXTENSION)) {
-                        List<Quiz> loadedQuizzes = loadQuizzesFromJSON(quizFile);
-                        quizzes.addAll(loadedQuizzes);
+                        Quiz loadedQuiz = loadQuizFromJSON(quizFile);
+                        quizzes.add(loadedQuiz);
                     }
                 }
             }
@@ -35,27 +37,47 @@ public class QuizLoader {
         return quizzes;
     }
 
-    private static List<Quiz> loadQuizzesFromJSON(File jsonFile) {
+    private static Quiz loadQuizFromJSON(File jsonFile) {
         try (BufferedReader reader = new BufferedReader(new FileReader(jsonFile))) {
             Gson gson = new Gson();
-            Type type = new TypeToken<List<Map<String, String>>>() {}.getType();
-            List<Map<String, String>> quizList = gson.fromJson(reader, type);
+            Type type = new TypeToken<Map<String, Object>>() {}.getType();
+            Map<String, Object> quizData = gson.fromJson(reader, type);
 
-            List<Quiz> quizzes = new ArrayList<>();
-            for (Map<String, String> quizMap : quizList) {
-                String prompt = quizMap.get("prompt");
-                String answer = quizMap.get("answer");
+            Quiz quiz = new Quiz();
 
-                Question question = new Question(prompt, answer);
-                Quiz quiz = new Quiz(questions);
-                quiz.addQuestion(question);
-                quizzes.add(quiz);
+            List<Map<String, Object>> quizList = gson.fromJson(gson.toJsonTree(quizData.get("quiz")), new TypeToken<List<Map<String, Object>>>() {}.getType());
+            for (Map<String, Object> quizMap : quizList) {
+                double id = (double) quizMap.get("id"); // Parse as double
+                int quizId = (int) id; // Cast to int
+
+                String quizType = (String) quizMap.get("type");
+                String difficulty = (String) quizMap.get("difficulty");
+                String topic = (String) quizMap.get("topic");
+
+                quiz.setId(quizId); // Set the quiz ID as an int
+                quiz.setType(QuizType.valueOf(quizType));
+                quiz.setDifficulty(QuizDifficulty.valueOf(difficulty));
+                quiz.setTopic(topic);
+
+                List<Map<String, Object>> questionList = gson.fromJson(gson.toJsonTree(quizMap.get("questions")), new TypeToken<List<Map<String, Object>>>() {}.getType());
+                for (Map<String, Object> questionMap : questionList) {
+                    String prompt = (String) questionMap.get("question");
+                    List<String> options = gson.fromJson(gson.toJsonTree(questionMap.get("options")), new TypeToken<List<String>>() {}.getType());
+                    String answer = (String) questionMap.get("answer");
+
+                    Question question = new Question();
+                    question.setPrompt(prompt);
+                    question.setOptions(options.toArray(new String[0]));
+                    question.setAnswer(answer);
+
+                    quiz.addQuestion(question);
+                }
             }
 
-            return quizzes;
+            return quiz;
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException("Error loading quizzes from JSON file: " + jsonFile.getAbsolutePath());
+            throw new RuntimeException("Error loading quiz from JSON file: " + jsonFile.getAbsolutePath());
         }
     }
 }

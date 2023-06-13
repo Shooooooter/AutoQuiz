@@ -9,7 +9,7 @@ public class Question {
     private String[] options;
     private String answer;
     private String clientAnswer;
-    private  QuizType type;
+    private QuizType type;
 
     public Question(String prompt, String[] options, String answer) {
         this.prompt = prompt;
@@ -17,20 +17,30 @@ public class Question {
         this.answer = answer;
     }
 
-    public Question(String prompt, String answer){
-        this.prompt = prompt;
-        this.answer = answer;
+    public Question(){
+
     }
 
     public String getPrompt() {
         return prompt;
     }
 
+    public void setPrompt(String prompt) {
+        this.prompt = prompt;
+    }
+
+    public String[] getOptions() {
+        return options;
+    }
+
+
     public String getAnswer() {
         return answer;
     }
-    public void setAnswer(String[] Options) {
-        this.options = Options;
+
+
+    public void setOptions(String[] options) {
+        this.options = options;
     }
 
     public boolean isCorrectAnswer(String clientAnswer) {
@@ -39,6 +49,10 @@ public class Question {
 
     public String getClientAnswer() {
         return clientAnswer;
+    }
+
+    public QuizType getType(){
+        return type;
     }
 
     public void setClientAnswer(String clientAnswer) {
@@ -54,20 +68,11 @@ public class Question {
                 '}';
     }
 
-    public String getId() {
-        return this.getId();
-    }
-    public String getQuestionText() {
-        return prompt;
+    public void setType(QuizType type) {
+        this.type = type;
     }
 
-
-    public QuizType getType() {
-        return type;
+    public void setAnswer(String answer) {
+        this.answer = answer;
     }
-
-    public String[] getOptions() {
-        return options;
-    }
-
 }
