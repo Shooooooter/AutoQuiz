@@ -6,6 +6,7 @@ import com.quizapp.service.QuizGeneratorService;
 import com.quizapp.service.QuizLoader;
 import com.quizapp.utils.QuizDifficulty;
 import com.quizapp.utils.QuizType;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -15,10 +16,13 @@ import javafx.stage.Stage;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Iterator;
 
 public class QuizAppGUI extends Application {
-    private VBox quizLayout;
-    private List<Question> questions; // Declare the questions variable
+
+    private final VBox questionLayout = new VBox(10);
+    private List<Question> questions;
+    private Iterator<Question> questionIterator;
 
     @Override
     public void start(Stage primaryStage) {
@@ -80,13 +84,11 @@ public class QuizAppGUI extends Application {
         generateButton.setOnAction(event -> {
             int numQuestions = numQuestionsComboBox.getValue();
             QuizType quizType = quizTypeComboBox.getValue();
-            String topic = topicTextField.getText(); // Convert the String to a Topic object
+            String topic = topicTextField.getText();
             QuizDifficulty difficulty = difficultyComboBox.getValue();
 
-            // Generate the quiz based on the selected options
             questions = QuizGeneratorService.generateQuiz(numQuestions, quizType, topic, difficulty).getQuestions();
 
-            // Display the generated quiz
             startQuiz(questions);
         });
 
@@ -100,10 +102,23 @@ public class QuizAppGUI extends Application {
     }
 
     private void startQuiz(List<Question> questions) {
-        quizLayout.getChildren().clear();
+        questionLayout.getChildren().clear();
+        questionIterator = questions.iterator();
 
-        for (Question question : questions) {
-            VBox questionLayout = new VBox(10);
+        showNextQuestion();
+
+        Stage quizStage = new Stage();
+        quizStage.setTitle("Quiz");
+        quizStage.setScene(new Scene(questionLayout, 600, 400));
+        quizStage.show();
+    }
+
+    private void showNextQuestion() {
+        if (questionIterator != null && questionIterator.hasNext()) {
+            Question question = questionIterator.next();
+
+            questionLayout.getChildren().clear();
+
             Label questionLabel = new Label(question.getPrompt());
             ToggleGroup answerGroup = new ToggleGroup();
 
@@ -126,8 +141,44 @@ public class QuizAppGUI extends Application {
                 questionLayout.getChildren().addAll(trueRadioButton, falseRadioButton);
             }
 
-            quizLayout.getChildren().add(questionLayout);
+            Button submitButton = new Button("Submit Question");
+            submitButton.setOnAction(event -> processQuestion(question, answerGroup));
+            questionLayout.getChildren().add(submitButton);
+        } else {
+            processQuiz(questions);
         }
+    }
+
+
+    private void processQuestion(Question question, ToggleGroup answerGroup) {
+        RadioButton selectedRadioButton = (RadioButton) answerGroup.getSelectedToggle();
+        if (selectedRadioButton != null) {
+            String selectedAnswer = selectedRadioButton.getText();
+            question.setClientAnswer(selectedAnswer);
+        }
+        showNextQuestion();
+    }
+
+    private void processQuiz(List<Question> questions) {
+        int totalQuestions = questions.size();
+        int correctAnswers = 0;
+
+        for (Question question : questions) {
+            if (question.getAnswer().equals(question.getClientAnswer())) {
+                correctAnswers++;
+            }
+        }
+
+        String resultMessage = String.format("You scored %d out of %d.", correctAnswers, totalQuestions);
+        showInfoDialog(resultMessage);
+    }
+
+    private void showInfoDialog(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     public static void main(String[] args) {

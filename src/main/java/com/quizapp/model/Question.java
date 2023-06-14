@@ -1,6 +1,7 @@
 package com.quizapp.model;
 
 import com.quizapp.utils.QuizType;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -17,8 +18,7 @@ public class Question {
         this.answer = answer;
     }
 
-    public Question(){
-
+    public Question() {
     }
 
     public String getPrompt() {
@@ -33,11 +33,9 @@ public class Question {
         return options;
     }
 
-
     public String getAnswer() {
         return answer;
     }
-
 
     public void setOptions(String[] options) {
         this.options = options;
@@ -51,7 +49,7 @@ public class Question {
         return clientAnswer;
     }
 
-    public QuizType getType(){
+    public QuizType getType() {
         return type;
     }
 
