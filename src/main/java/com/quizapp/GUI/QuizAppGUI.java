@@ -9,6 +9,7 @@ import com.quizapp.utils.QuizType;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
+import javafx.collections.MapChangeListener;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -240,27 +241,19 @@ public class QuizAppGUI extends Application {
         MediaView mediaView = new MediaView(mediaPlayer);
 
         // Define the desired maximum dimensions for your animation
-        int maxWidth = (int) Screen.getPrimary().getBounds().getWidth();
-        int maxHeight = (int) Screen.getPrimary().getBounds().getHeight();
+        int maxWidth = 1280;
+        int maxHeight = 720;
 
-        // Calculate the aspect ratio of the animation
-        double aspectRatio = media.getWidth() / media.getHeight();
-
-        // Calculate the maximum width and height based on the available screen space
-        double scale = Math.min(maxWidth / media.getWidth(), maxHeight / media.getHeight());
-        double scaledWidth = scale * media.getWidth();
-        double scaledHeight = scale * media.getHeight();
-
-        // Set the MediaView's fitWidth and fitHeight properties based on the calculated dimensions
-        mediaView.setFitWidth(scaledWidth);
-        mediaView.setFitHeight(scaledHeight);
+        // Bind the MediaView's fitWidth and fitHeight properties to the maximum dimensions
+        mediaView.fitWidthProperty().bind(Bindings.min(media.widthProperty(), maxWidth));
+        mediaView.fitHeightProperty().bind(Bindings.min(media.heightProperty(), maxHeight));
 
         // Create a layout for the application, e.g., StackPane
         StackPane root = new StackPane();
         root.getChildren().add(mediaView);
 
-        // Create a Scene with the layout using the calculated dimensions
-        Scene scene = new Scene(root, scaledWidth, scaledHeight);
+        // Create a Scene with the layout using the maximum dimensions
+        Scene scene = new Scene(root, maxWidth, maxHeight);
 
         // Set the Scene to a temporary Stage
         Stage tempStage = new Stage();
@@ -275,11 +268,6 @@ public class QuizAppGUI extends Application {
         // Close the temporary Stage after the animation finishes
         mediaPlayer.setOnEndOfMedia(tempStage::close);
     }
-
-
-
-
-
 
     private void processQuiz(List<Question> questions) {
         int numCorrectAnswers = (int) questions.stream()
