@@ -1,0 +1,52 @@
+{
+    "quiz": [
+        {
+            "id": 6,
+            "type": "MULTIPLE_CHOICE",
+            "difficulty": "MEDIUM",
+            "topic": "Two Nation Theory",
+            "questions": [
+                {
+                    "question": "What does the Two Nation Theory state?",
+                    "options": [
+                        "India and Pakistan were divided due to religious differences",
+                        "India and Pakistan were divided due to cultural differences",
+                        "India and Pakistan were divided due to political differences",
+                        "India and Pakistan were divided due to economic differences"
+                    ],
+                    "answer": "India and Pakistan were divided due to religious differences"
+                },
+                {
+                    "question": "Who proposed the Two Nation Theory?",
+                    "options": [
+                        "Muhammad Ali Jinnah",
+                        "Mahatma Gandhi",
+                        "Rabindranath Tagore",
+                        "Lal Bahadur Shastri"
+                    ],
+                    "answer": "Muhammad Ali Jinnah"
+                },
+                {
+                    "question": "What year did the Two Nation Theory come into effect?",
+                    "options": [
+                        "1947",
+                        "1948",
+                        "1949",
+                        "1950"
+                    ],
+                    "answer": "1947"
+                },
+                {
+                    "question": "What religion was the foundation of the Two Nation Theory?",
+                    "options": [
+                        "Hinduism",
+                        "Islam",
+                        "Buddhism",
+                        "Christianity"
+                    ],
+                    "answer": "Islam"
+                }
+            ]
+        }
+    ]
+}
