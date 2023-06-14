@@ -72,7 +72,7 @@ def generate_quiz(num_questions, quiz_type, topic, difficulty):
     quiz_json = {"quiz": literal_eval(quiz_text)}
 
     # Prepare the JSON file name for storing the quiz and answers
-    quiz_json_filename = f"src/Res/Q_{topic}_{quiz_type}.json"
+    quiz_json_filename = f"src/Res/quiz_{quiz_type}_{difficulty}_{topic}.json"
 
     # Save the quiz questions and answers to a JSON file
     with open(quiz_json_filename, "w", encoding="utf-8") as quiz_file:

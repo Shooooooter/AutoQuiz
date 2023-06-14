@@ -1,0 +1,62 @@
+{
+    "quiz": [
+        {
+            "id": 5,
+            "type": "MULTIPLE_CHOICE",
+            "difficulty": "MEDIUM",
+            "topic": "The Torture of Hell",
+            "questions": [
+                {
+                    "question": "What is the purpose of the torture of hell?",
+                    "options": [
+                        "Punishment for sins",
+                        "To teach a lesson",
+                        "To bring fear",
+                        "All of the above"
+                    ],
+                    "answer": "All of the above"
+                },
+                {
+                    "question": "Which religion believes in the concept of hell?",
+                    "options": [
+                        "Judaism",
+                        "Christianity",
+                        "Islam",
+                        "All of the above"
+                    ],
+                    "answer": "All of the above"
+                },
+                {
+                    "question": "What is the duration for which a soul resides in hell according to Islam?",
+                    "options": [
+                        "Forever",
+                        "Until Judgment Day",
+                        "Until the end of time",
+                        "Until repentance is made"
+                    ],
+                    "answer": "Until repentance is made"
+                },
+                {
+                    "question": "What is the main emotion experienced by those in hell according to Christianity?",
+                    "options": [
+                        "Anger",
+                        "Fear",
+                        "Sadness",
+                        "Regret"
+                    ],
+                    "answer": "Regret"
+                },
+                {
+                    "question": "Which religion believes that hell can be avoided through good deeds?",
+                    "options": [
+                        "Hinduism",
+                        "Buddhism",
+                        "Judaism",
+                        "Islam"
+                    ],
+                    "answer": "Islam"
+                }
+            ]
+        }
+    ]
+}

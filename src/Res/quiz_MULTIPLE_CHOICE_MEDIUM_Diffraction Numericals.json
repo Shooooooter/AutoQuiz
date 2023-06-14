@@ -1,0 +1,52 @@
+{
+    "quiz": [
+        {
+            "id": 2,
+            "type": "MULTIPLE_CHOICE",
+            "difficulty": "MEDIUM",
+            "topic": "Diffraction Numericals",
+            "questions": [
+                {
+                    "question": "What is the maximum number of bright fringes produced by a single slit diffraction?",
+                    "options": [
+                        "1",
+                        "2",
+                        "3",
+                        "4"
+                    ],
+                    "answer": "2"
+                },
+                {
+                    "question": "What is the angular width of the central maximum in Young's double-slit experiment?",
+                    "options": [
+                        "π/2",
+                        "2π/3",
+                        "π/4",
+                        "π/3"
+                    ],
+                    "answer": "π/3"
+                },
+                {
+                    "question": "Which of the following statement is not correct for Fraunhofer diffraction?",
+                    "options": [
+                        "The slit size affects the brightness of the diffraction pattern.",
+                        "It occurs when a wave passes through an aperture or a slit.",
+                        "It is due to the interference between two waves originating from different sources.",
+                        "It produces a single bright fringe."
+                    ],
+                    "answer": "It produces a single bright fringe."
+                },
+                {
+                    "question": "In the Fraunhofer diffraction, what happens when the source size is increased?",
+                    "options": [
+                        "The central maxima increases in width and intensity.",
+                        "The secondary maxima increases in width and intensity.",
+                        "The central maxima decreases in width and intensity.",
+                        "The secondary maxima decreases in width and intensity."
+                    ],
+                    "answer": "The central maxima decreases in width and intensity."
+                }
+            ]
+        }
+    ]
+}

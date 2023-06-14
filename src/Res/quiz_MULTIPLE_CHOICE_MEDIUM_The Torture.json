@@ -1,0 +1,62 @@
+{
+    "quiz": [
+        {
+            "id": 4,
+            "type": "MULTIPLE_CHOICE",
+            "difficulty": "MEDIUM",
+            "topic": "The Torture of MEDIUM",
+            "questions": [
+                {
+                    "question": "The United Nations Convention Against Torture defines torture as:",
+                    "options": [
+                        "Physical and mental pain inflicted upon a person for political purposes",
+                        "The infliction of severe physical or mental pain or suffering for a particular purpose",
+                        "Intense physical pain and violation of human rights",
+                        "The systematic, intentional infliction of physical or psychological suffering"
+                    ],
+                    "answer": "The infliction of severe physical or mental pain or suffering for a particular purpose"
+                },
+                {
+                    "question": "Which country was the first to ratify the United Nations Convention Against Torture?",
+                    "options": [
+                        "United States",
+                        "United Kingdom",
+                        "France",
+                        "Denmark"
+                    ],
+                    "answer": "Denmark"
+                },
+                {
+                    "question": "What is the name of the International Day in Support of Victims of Torture?",
+                    "options": [
+                        "International Human Rights Day",
+                        "International Day for the Abolition of Slavery",
+                        "International Day against Torture",
+                        "International Day in Support of Victims of Torture"
+                    ],
+                    "answer": "International Day in Support of Victims of Torture"
+                },
+                {
+                    "question": "Which organization is dedicated to the global eradication of torture?",
+                    "options": [
+                        "World Health Organization",
+                        "Amnesty International",
+                        "Human Rights Watch",
+                        "Red Cross"
+                    ],
+                    "answer": "Amnesty International"
+                },
+                {
+                    "question": "Which United Nations body is responsible for monitoring torture worldwide?",
+                    "options": [
+                        "United Nations Security Council",
+                        "United Nations Human Rights Council",
+                        "World Health Organization",
+                        "United Nations Office on Drugs and Crime"
+                    ],
+                    "answer": "United Nations Human Rights Council"
+                }
+            ]
+        }
+    ]
+}

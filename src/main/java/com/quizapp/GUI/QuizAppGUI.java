@@ -6,12 +6,15 @@ import com.quizapp.service.QuizLoader;
 import com.quizapp.utils.QuizDifficulty;
 import com.quizapp.utils.QuizType;
 
+import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -23,12 +26,14 @@ public class QuizAppGUI extends Application {
 
     private List<Question> questions;
     private Iterator<Question> questionIterator;
-    private ListView<Quiz> quizListView;
+    private TableView<Quiz> quizTableView;
 
     @Override
     public void start(Stage primaryStage) {
         // Create the UI components
-        quizListView = new ListView<>();
+        quizTableView = new TableView<>();
+        TableColumn<Quiz, Integer> idColumn = new TableColumn<>("ID");
+        TableColumn<Quiz, String> topicColumn = new TableColumn<>("Topic");
         Label numQuestionsLabel = new Label("Number of Questions:");
         ComboBox<Integer> numQuestionsComboBox = new ComboBox<>();
         Label quizTypeLabel = new Label("Quiz Type:");
@@ -41,11 +46,11 @@ public class QuizAppGUI extends Application {
         Button refreshButton = new Button("Refresh");
         QuizLoader quizLoader = new QuizLoader();
         List<Quiz> quizzes = quizLoader.loadQuizzes();
-        quizListView.getItems().addAll(quizzes);
+        quizTableView.getItems().addAll(quizzes);
 
         // Configure the UI components
-        quizListView.setPrefWidth(200);
-        quizListView.setPrefHeight(400);
+        quizTableView.setPrefWidth(200);
+        quizTableView.setPrefHeight(400);
         numQuestionsComboBox.getItems().addAll(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         numQuestionsComboBox.setValue(10);
         quizTypeComboBox.getItems().addAll(QuizType.MULTIPLE_CHOICE, QuizType.TRUE_FALSE);
@@ -54,33 +59,40 @@ public class QuizAppGUI extends Application {
         difficultyComboBox.setValue(QuizDifficulty.MEDIUM);
 
         // Create the layout
-        TabPane tabPane = new TabPane();
+        BorderPane root = new BorderPane();
 
         // Create the "Take Quiz" tab
-        Tab takeQuizTab = new Tab("Take Quiz");
         VBox takeQuizLayout = new VBox(10);
         takeQuizLayout.setPadding(new Insets(10));
-        takeQuizLayout.getChildren().add(quizListView);
-        takeQuizTab.setContent(takeQuizLayout);
-        tabPane.getTabs().add(takeQuizTab);
+        takeQuizLayout.getStyleClass().add("container");
+        takeQuizLayout.getChildren().add(quizTableView);
+        root.setCenter(takeQuizLayout);
 
         // Create the "Make Quiz" tab
-        Tab makeQuizTab = new Tab("Make Quiz");
         VBox makeQuizLayout = new VBox(10);
         makeQuizLayout.setPadding(new Insets(10));
+        makeQuizLayout.getStyleClass().add("container");
         makeQuizLayout.getChildren().addAll(numQuestionsLabel, numQuestionsComboBox, quizTypeLabel,
                 quizTypeComboBox, topicLabel, topicTextField, difficultyLabel, difficultyComboBox, generateButton);
-        makeQuizTab.setContent(makeQuizLayout);
-        tabPane.getTabs().add(makeQuizTab);
+        root.setRight(makeQuizLayout);
 
         // Set the selected tab to "Take Quiz" by default
-        tabPane.getSelectionModel().select(takeQuizTab);
 
         // Create the scene and set it on the stage
-        Scene scene = new Scene(tabPane, 600, 400);
-        primaryStage.setTitle("Quiz App");
+        Scene scene = new Scene(root, 600, 400);
+        String cssPath = "GUI/styles.css";
+        scene.getStylesheets().add(cssPath);
+
+        primaryStage.setTitle("Abyssal Quiz App");
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        // Define cell value factories for the table columns
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        topicColumn.setCellValueFactory(new PropertyValueFactory<>("topic"));
+
+        // Add the columns to the table view
+        quizTableView.getColumns().addAll(idColumn, topicColumn);
 
         // Handle generateButton click event
         generateButton.setOnAction(event -> {
@@ -90,17 +102,16 @@ public class QuizAppGUI extends Application {
             QuizDifficulty difficulty = difficultyComboBox.getValue();
 
             if (topic.isEmpty()) {
-                showErrorMessage();
+                showErrorMessage("Please enter a topic.");
             } else {
                 generateQuiz(numQuestions, quizType, topic, difficulty);
             }
         });
 
-        // Handle quizListView selection event
-        quizListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        // Handle quizTableView selection event
+        quizTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 questions = newValue.getQuestions();
-                startQuiz(questions);
             }
         });
 
@@ -109,20 +120,45 @@ public class QuizAppGUI extends Application {
 
         // Add refreshButton to takeQuizLayout
         takeQuizLayout.getChildren().add(refreshButton);
+
+        // Create the "Launch Quiz" button
+        Button launchButton = new Button("Launch Quiz");
+        launchButton.setOnAction(event -> launchSelectedQuiz());
+
+        // Add the "Launch Quiz" button to takeQuizLayout
+        takeQuizLayout.getChildren().add(launchButton);
+
+        // Apply fade-in animation
+        applyFadeInAnimation(root);
+    }
+
+    private void launchSelectedQuiz() {
+        Quiz selectedQuiz = quizTableView.getSelectionModel().getSelectedItem();
+        if (selectedQuiz != null) {
+            List<Question> selectedQuestions = selectedQuiz.getQuestions();
+            startQuiz(selectedQuestions);
+        } else {
+            showErrorMessage("Please select a quiz.");
+        }
     }
 
     private void startQuiz(List<Question> questions) {
         VBox quizLayout = new VBox(10);
+        quizLayout.getStyleClass().add("quiz-popup");
         quizLayout.getChildren().clear();
         questionIterator = questions.iterator();
 
         showNextQuestion(quizLayout);
 
         Stage quizStage = new Stage();
-        quizStage.setTitle("Quiz");
-        quizStage.setScene(new Scene(quizLayout, 600, 400));
+        quizStage.setTitle("Deep Quiz");
+        Scene scene = new Scene(quizLayout, 600, 400);
+        String cssPath = "GUI/styles.css";
+        scene.getStylesheets().add(cssPath);
+        quizStage.setScene(scene);
         quizStage.show();
     }
+
 
     private void showNextQuestion(VBox quizLayout) {
         if (questionIterator != null && questionIterator.hasNext()) {
@@ -131,6 +167,7 @@ public class QuizAppGUI extends Application {
             quizLayout.getChildren().clear();
 
             Label questionLabel = new Label(question.getPrompt());
+            questionLabel.getStyleClass().add("question-label"); // Add style class for question label
             ToggleGroup answerGroup = new ToggleGroup();
 
             if (question.getType() == QuizType.MULTIPLE_CHOICE) {
@@ -153,6 +190,7 @@ public class QuizAppGUI extends Application {
             }
 
             Button submitButton = new Button("Submit Question");
+            submitButton.getStyleClass().add("submit-button"); // Add style class for submit button
             submitButton.setOnAction(event -> processQuestion(question, answerGroup, quizLayout));
             quizLayout.getChildren().add(submitButton);
         } else {
@@ -160,54 +198,54 @@ public class QuizAppGUI extends Application {
         }
     }
 
+
     private void processQuestion(Question question, ToggleGroup answerGroup, VBox quizLayout) {
         RadioButton selectedRadioButton = (RadioButton) answerGroup.getSelectedToggle();
         if (selectedRadioButton != null) {
             String selectedAnswer = selectedRadioButton.getText();
-            question.setClientAnswer(selectedAnswer);
+            question.setAnswer(selectedAnswer);
+            showNextQuestion(quizLayout);
+        } else {
+            showErrorMessage("Please select an answer.");
         }
-        showNextQuestion(quizLayout);
     }
 
     private void processQuiz(List<Question> questions) {
-        int totalQuestions = questions.size();
-        int correctAnswers = 0;
+        int numCorrectAnswers = (int) questions.stream()
+                .filter(Question::isCorrect)
+                .count();
 
-        for (Question question : questions) {
-            if (question.getAnswer().equals(question.getClientAnswer())) {
-                correctAnswers++;
-            }
-        }
-
-        String resultMessage = String.format("You scored %d out of %d.", correctAnswers, totalQuestions);
-        showInfoDialog(resultMessage);
+        showQuizResult(numCorrectAnswers, questions.size());
     }
 
-    private void showErrorMessage() {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText("Please enter a topic.");
-        alert.showAndWait();
-    }
-
-
-    private void showInfoDialog(String message) {
+    private void showQuizResult(int numCorrectAnswers, int totalQuestions) {
+        String resultMessage = String.format("Quiz Result: %d/%d", numCorrectAnswers, totalQuestions);
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
+        alert.setTitle("Quiz Result");
+        alert.setHeaderText(resultMessage);
         alert.showAndWait();
     }
 
     private void refreshQuizList() {
         QuizLoader quizLoader = new QuizLoader();
         List<Quiz> quizzes = quizLoader.loadQuizzes();
-        quizListView.getItems().clear();
-        quizListView.getItems().addAll(quizzes);
+        quizTableView.getItems().clear();
+        quizTableView.getItems().addAll(quizzes);
     }
 
-    public static void main(String[] args) {
-        launch(args);
+    private void showErrorMessage(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void applyFadeInAnimation(BorderPane root) {
+        FadeTransition fadeTransition = new FadeTransition(Duration.millis(1000), root);
+        fadeTransition.setFromValue(0.0);
+        fadeTransition.setToValue(1.0);
+        fadeTransition.play();
     }
 }
+

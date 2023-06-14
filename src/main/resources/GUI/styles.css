@@ -1,0 +1,129 @@
+.container {
+    -fx-background-color: #F9F9F9;
+    -fx-border-color: #CCCCCC;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-padding: 10px;
+}
+
+.container .button {
+    -fx-background-color: #55B363;
+    -fx-text-fill: white;
+}
+
+.container .button:hover {
+    -fx-background-color: #4FA959;
+}
+
+.container .label {
+    -fx-font-weight: bold;
+}
+
+.container .text-field {
+    -fx-background-color: #FFFFFF;
+}
+
+.container .list-view {
+    -fx-background-color: #FFFFFF;
+}
+
+.container .list-view .list-cell {
+    -fx-background-color: transparent;
+}
+
+.container .list-view .list-cell:hover {
+    -fx-background-color: #F2F2F2;
+}
+
+.container .list-view .list-cell:selected {
+    -fx-background-color: #D9D9D9;
+}
+
+.container .list-view .list-cell:odd {
+    -fx-background-color: #F9F9F9;
+}
+
+.container .list-view .list-cell:even {
+    -fx-background-color: #FFFFFF;
+}
+
+.quiz-popup {
+    -fx-background-color: #FFFFFF;
+    -fx-padding: 20;
+}
+
+.question-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 0;
+}
+
+.submit-button {
+    -fx-background-color: #55B363;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 8 16;
+    -fx-border-radius: 4;
+    -fx-cursor: hand;
+}
+
+.submit-button:hover {
+    -fx-background-color: #4FA959;
+}
+
+.submit-button:pressed {
+    -fx-background-color: #478A51;
+}
+
+.quiz-table-view {
+    -fx-selection-bar: #55B363;
+    -fx-selection-bar-text: white;
+}
+
+.quiz-table-view .column-header-background {
+    -fx-background-color: #55B363;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 3 0 2 0;
+    -fx-text-fill: white;
+}
+
+.quiz-table-view .column-header {
+    -fx-font-weight: bold;
+}
+
+.quiz-table-view .table-cell {
+    -fx-alignment: center-left;
+    -fx-font-size: 14px;
+}
+
+.quiz-table-view .table-row-cell:filled:selected {
+    -fx-background-color: #55B363;
+    -fx-background-insets: 0;
+}
+
+.quiz-table-view .table-row-cell:filled:selected .table-cell {
+    -fx-text-fill: white;
+}
+
+.quiz-table-view .table-row-cell:odd {
+    -fx-background-color: #F9F9F9;
+}
+
+.quiz-table-view .table-row-cell:even {
+    -fx-background-color: #FFFFFF;
+}
+
+.quiz-table-view .table-row-cell:filled:hover {
+    -fx-background-color: #F5F5F5;
+}
+
+.quiz-table-view .table-row-cell .table-cell {
+    -fx-padding: 4;
+}
+
+.quiz-table-view .column-header,
+.quiz-table-view .table-row-cell {
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #CCCCCC;
+}

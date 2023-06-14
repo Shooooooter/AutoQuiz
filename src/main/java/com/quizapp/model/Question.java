@@ -53,8 +53,16 @@ public class Question {
         return type;
     }
 
-    public void setClientAnswer(String clientAnswer) {
-        this.clientAnswer = clientAnswer;
+    public boolean isCorrect() {
+        return Objects.equals(answer, clientAnswer);
+    }
+
+    public void setType(QuizType type) {
+        this.type = type;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
     }
 
     @Override
@@ -64,13 +72,5 @@ public class Question {
                 ", options=" + Arrays.toString(options) +
                 ", answer='" + answer + '\'' +
                 '}';
-    }
-
-    public void setType(QuizType type) {
-        this.type = type;
-    }
-
-    public void setAnswer(String answer) {
-        this.answer = answer;
     }
 }
