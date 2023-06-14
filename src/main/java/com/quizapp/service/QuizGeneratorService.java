@@ -1,25 +1,18 @@
 package com.quizapp.service;
 
-import com.quizapp.model.Quiz;
 import com.quizapp.utils.QuizDifficulty;
 import com.quizapp.utils.QuizType;
 
-import com.google.gson.Gson;
-
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 public class QuizGeneratorService {
-    private static final String PYTHON_INTERPRETER_PATH = "F:\\Java1\\Management\\AutoQuiz\\venv\\Scripts\\python.exe"; // Replace with the actual path to your Python interpreter
+    private static final String PYTHON_INTERPRETER_PATH = "venv/Scripts/python.exe"; // Replace with the actual path to your Python interpreter
     private static final String PYTHON_SCRIPT_PATH = "F:\\Java1\\Management\\AutoQuiz\\src\\main\\java\\com\\quizapp\\GPTcom\\__main__.py"; // Replace with the actual path to your Python script
 
-    public static Quiz generateQuiz(int numQuestions, QuizType quizType, String topic, QuizDifficulty quizDifficulty) {
-        Quiz quiz = null;
-
+    public static void generateQuiz(int numQuestions, QuizType quizType, String topic, QuizDifficulty quizDifficulty) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(PYTHON_INTERPRETER_PATH, PYTHON_SCRIPT_PATH,
                     "--num_questions", String.valueOf(numQuestions),
@@ -39,21 +32,20 @@ public class QuizGeneratorService {
                 }
             }
 
-            if (process.waitFor(5, TimeUnit.MINUTES)) {
-                if (quizJsonFile != null) {
-                    Gson gson = new Gson();
-                    quiz = gson.fromJson(new FileReader(quizJsonFile), Quiz.class);
-                } else {
-                    System.out.println("Failed to retrieve quiz JSON file.");
-                }
+            int exitCode = process.waitFor(); // Wait for the Python script to complete
+            if (exitCode != 0) {
+                // Handle any error or failure case
+                throw new RuntimeException("Failed to run the Python script. Exit code: " + exitCode);
+            }
+
+            if (quizJsonFile != null) {
+                // Process the quiz JSON file as needed (e.g., save it to a database, send it via email, etc.)
+                System.out.println("Quiz JSON file generated successfully.");
             } else {
-                System.out.println("Quiz generation process timed out.");
+                System.out.println("Failed to retrieve quiz JSON file.");
             }
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            System.out.println("An error occurred during quiz generation.");
+            throw new RuntimeException(e);
         }
-
-        return quiz;
     }
 }

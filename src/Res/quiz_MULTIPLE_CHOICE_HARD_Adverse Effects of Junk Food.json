@@ -1,0 +1,62 @@
+{
+    "quiz": [
+        {
+            "id": 1,
+            "type": "MULTIPLE_CHOICE",
+            "difficulty": "HARD",
+            "topic": "Adverse Effects of Junk Food",
+            "questions": [
+                {
+                    "question": "What are the potential effects of too much sugar intake?",
+                    "options": [
+                        "Diabetes",
+                        "High Blood Pressure",
+                        "Weight Gain",
+                        "All of the Above"
+                    ],
+                    "answer": "All of the Above"
+                },
+                {
+                    "question": "Which of the following is an adverse effect of eating too much processed food?",
+                    "options": [
+                        "Risk of Obesity",
+                        "Increased Energy Levels",
+                        "Reduced Risk of Diabetes",
+                        "Decreased Risk of Heart Disease"
+                    ],
+                    "answer": "Risk of Obesity"
+                },
+                {
+                    "question": "What is an example of a health issue associated with excessive consumption of fast food?",
+                    "options": [
+                        "High Blood Pressure",
+                        "Reduced Risk of Diabetes",
+                        "Increased Energy Levels",
+                        "Lowered Risk of Heart Disease"
+                    ],
+                    "answer": "High Blood Pressure"
+                },
+                {
+                    "question": "What is an example of a short-term effect that might be experienced after eating junk food?",
+                    "options": [
+                        "Weight Loss",
+                        "Feeling Tired",
+                        "Headaches",
+                        "Insomnia"
+                    ],
+                    "answer": "Feeling Tired"
+                },
+                {
+                    "question": "Which nutrient is often lacking in junk food?",
+                    "options": [
+                        "Protein",
+                        "Vitamins",
+                        "Fats",
+                        "Carbohydrates"
+                    ],
+                    "answer": "Vitamins"
+                }
+            ]
+        }
+    ]
+}

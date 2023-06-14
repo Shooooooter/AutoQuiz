@@ -2,7 +2,6 @@ package com.quizapp.GUI;
 
 import com.quizapp.model.Question;
 import com.quizapp.model.Quiz;
-import com.quizapp.service.QuizGeneratorService;
 import com.quizapp.service.QuizLoader;
 import com.quizapp.utils.QuizDifficulty;
 import com.quizapp.utils.QuizType;
@@ -15,19 +14,21 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
+
+import static com.quizapp.service.QuizGeneratorService.generateQuiz;
 
 public class QuizAppGUI extends Application {
 
-    private final VBox questionLayout = new VBox(10);
     private List<Question> questions;
     private Iterator<Question> questionIterator;
+    private ListView<Quiz> quizListView;
 
     @Override
     public void start(Stage primaryStage) {
         // Create the UI components
-        ListView<Quiz> quizListView = new ListView<>();
+        quizListView = new ListView<>();
         Label numQuestionsLabel = new Label("Number of Questions:");
         ComboBox<Integer> numQuestionsComboBox = new ComboBox<>();
         Label quizTypeLabel = new Label("Quiz Type:");
@@ -37,6 +38,7 @@ public class QuizAppGUI extends Application {
         Label difficultyLabel = new Label("Difficulty:");
         ComboBox<QuizDifficulty> difficultyComboBox = new ComboBox<>();
         Button generateButton = new Button("Generate Quiz");
+        Button refreshButton = new Button("Refresh");
         QuizLoader quizLoader = new QuizLoader();
         List<Quiz> quizzes = quizLoader.loadQuizzes();
         quizListView.getItems().addAll(quizzes);
@@ -87,9 +89,11 @@ public class QuizAppGUI extends Application {
             String topic = topicTextField.getText();
             QuizDifficulty difficulty = difficultyComboBox.getValue();
 
-            questions = QuizGeneratorService.generateQuiz(numQuestions, quizType, topic, difficulty).getQuestions();
-
-            startQuiz(questions);
+            if (topic.isEmpty()) {
+                showErrorMessage();
+            } else {
+                generateQuiz(numQuestions, quizType, topic, difficulty);
+            }
         });
 
         // Handle quizListView selection event
@@ -99,25 +103,32 @@ public class QuizAppGUI extends Application {
                 startQuiz(questions);
             }
         });
+
+        // Handle refreshButton click event
+        refreshButton.setOnAction(event -> refreshQuizList());
+
+        // Add refreshButton to takeQuizLayout
+        takeQuizLayout.getChildren().add(refreshButton);
     }
 
     private void startQuiz(List<Question> questions) {
-        questionLayout.getChildren().clear();
+        VBox quizLayout = new VBox(10);
+        quizLayout.getChildren().clear();
         questionIterator = questions.iterator();
 
-        showNextQuestion();
+        showNextQuestion(quizLayout);
 
         Stage quizStage = new Stage();
         quizStage.setTitle("Quiz");
-        quizStage.setScene(new Scene(questionLayout, 600, 400));
+        quizStage.setScene(new Scene(quizLayout, 600, 400));
         quizStage.show();
     }
 
-    private void showNextQuestion() {
+    private void showNextQuestion(VBox quizLayout) {
         if (questionIterator != null && questionIterator.hasNext()) {
             Question question = questionIterator.next();
 
-            questionLayout.getChildren().clear();
+            quizLayout.getChildren().clear();
 
             Label questionLabel = new Label(question.getPrompt());
             ToggleGroup answerGroup = new ToggleGroup();
@@ -130,33 +141,32 @@ public class QuizAppGUI extends Application {
                             return radioButton;
                         })
                         .toList();
-                questionLayout.getChildren().add(questionLabel);
-                questionLayout.getChildren().addAll(answerRadioButtons);
+                quizLayout.getChildren().add(questionLabel);
+                quizLayout.getChildren().addAll(answerRadioButtons);
             } else if (question.getType() == QuizType.TRUE_FALSE) {
                 RadioButton trueRadioButton = new RadioButton("True");
                 RadioButton falseRadioButton = new RadioButton("False");
                 trueRadioButton.setToggleGroup(answerGroup);
                 falseRadioButton.setToggleGroup(answerGroup);
-                questionLayout.getChildren().add(questionLabel);
-                questionLayout.getChildren().addAll(trueRadioButton, falseRadioButton);
+                quizLayout.getChildren().add(questionLabel);
+                quizLayout.getChildren().addAll(trueRadioButton, falseRadioButton);
             }
 
             Button submitButton = new Button("Submit Question");
-            submitButton.setOnAction(event -> processQuestion(question, answerGroup));
-            questionLayout.getChildren().add(submitButton);
+            submitButton.setOnAction(event -> processQuestion(question, answerGroup, quizLayout));
+            quizLayout.getChildren().add(submitButton);
         } else {
             processQuiz(questions);
         }
     }
 
-
-    private void processQuestion(Question question, ToggleGroup answerGroup) {
+    private void processQuestion(Question question, ToggleGroup answerGroup, VBox quizLayout) {
         RadioButton selectedRadioButton = (RadioButton) answerGroup.getSelectedToggle();
         if (selectedRadioButton != null) {
             String selectedAnswer = selectedRadioButton.getText();
             question.setClientAnswer(selectedAnswer);
         }
-        showNextQuestion();
+        showNextQuestion(quizLayout);
     }
 
     private void processQuiz(List<Question> questions) {
@@ -173,12 +183,28 @@ public class QuizAppGUI extends Application {
         showInfoDialog(resultMessage);
     }
 
+    private void showErrorMessage() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText("Please enter a topic.");
+        alert.showAndWait();
+    }
+
+
     private void showInfoDialog(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Information");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void refreshQuizList() {
+        QuizLoader quizLoader = new QuizLoader();
+        List<Quiz> quizzes = quizLoader.loadQuizzes();
+        quizListView.getItems().clear();
+        quizListView.getItems().addAll(quizzes);
     }
 
     public static void main(String[] args) {
