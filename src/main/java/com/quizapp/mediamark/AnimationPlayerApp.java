@@ -14,7 +14,7 @@ import java.io.File;
 
 public class AnimationPlayerApp extends Application {
 
-    private static final String ANIMATION_FILE = "mediamark/animation.mp4";
+    private static final String ANIMATION_FILE = "GUI/Abyss.mp4";
 
     public static void main(String[] args) {
         launch(args);

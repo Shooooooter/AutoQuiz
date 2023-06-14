@@ -8,14 +8,23 @@ import com.quizapp.utils.QuizType;
 
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.media.Media;
 
+
+import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -28,8 +37,18 @@ public class QuizAppGUI extends Application {
     private Iterator<Question> questionIterator;
     private TableView<Quiz> quizTableView;
 
+    private static final String ANIMATION_FILE = "src/main/resources/GUI/Abyss.mp4";
+
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
     @Override
     public void start(Stage primaryStage) {
+        // Play the animation
+        playAnimation();
+
         // Create the UI components
         quizTableView = new TableView<>();
         TableColumn<Quiz, Integer> idColumn = new TableColumn<>("ID");
@@ -209,6 +228,58 @@ public class QuizAppGUI extends Application {
             showErrorMessage("Please select an answer.");
         }
     }
+
+    private void playAnimation() {
+        // Create a Media object with the path to your MP4 animation file
+        Media media = new Media(new File(ANIMATION_FILE).toURI().toString());
+
+        // Create a MediaPlayer with the Media
+        MediaPlayer mediaPlayer = new MediaPlayer(media);
+
+        // Create a MediaView and associate it with the MediaPlayer
+        MediaView mediaView = new MediaView(mediaPlayer);
+
+        // Define the desired maximum dimensions for your animation
+        int maxWidth = (int) Screen.getPrimary().getBounds().getWidth();
+        int maxHeight = (int) Screen.getPrimary().getBounds().getHeight();
+
+        // Calculate the aspect ratio of the animation
+        double aspectRatio = media.getWidth() / media.getHeight();
+
+        // Calculate the maximum width and height based on the available screen space
+        double scale = Math.min(maxWidth / media.getWidth(), maxHeight / media.getHeight());
+        double scaledWidth = scale * media.getWidth();
+        double scaledHeight = scale * media.getHeight();
+
+        // Set the MediaView's fitWidth and fitHeight properties based on the calculated dimensions
+        mediaView.setFitWidth(scaledWidth);
+        mediaView.setFitHeight(scaledHeight);
+
+        // Create a layout for the application, e.g., StackPane
+        StackPane root = new StackPane();
+        root.getChildren().add(mediaView);
+
+        // Create a Scene with the layout using the calculated dimensions
+        Scene scene = new Scene(root, scaledWidth, scaledHeight);
+
+        // Set the Scene to a temporary Stage
+        Stage tempStage = new Stage();
+        tempStage.initStyle(StageStyle.UNDECORATED);
+        tempStage.setScene(scene);
+        tempStage.setAlwaysOnTop(true);
+        tempStage.show();
+
+        // Play the animation
+        mediaPlayer.play();
+
+        // Close the temporary Stage after the animation finishes
+        mediaPlayer.setOnEndOfMedia(tempStage::close);
+    }
+
+
+
+
+
 
     private void processQuiz(List<Question> questions) {
         int numCorrectAnswers = (int) questions.stream()
