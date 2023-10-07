@@ -4,7 +4,7 @@ import openai
 from ast import *
 
 # Set your OpenAI API key here
-API_KEY = "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"
+API_KEY = "Dummy Key"
 
 # Configure the OpenAI API client
 openai.api_key = API_KEY
